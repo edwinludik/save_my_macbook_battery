@@ -19,7 +19,7 @@ func main() {
 	chargeLevel := 0.0
 
 	// load .env
-	err := godotenv.Load()
+	err := godotenv.Load(".env_save_my_macbook_battery")
 	if err != nil {
 		log.Fatal("Error loading .env file")
 	}
