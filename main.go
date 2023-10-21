@@ -79,23 +79,27 @@ func main() {
 	for _, d := range devices {
 		info, _ := d.GetInfo()
 		// log.Printf("Found device (name, id): %s, %s", info.Name, info.DeviceId)
-		if info.Name == targetPlug || info.DeviceId == targetPlug {
+		if (info != nil) &&
+			(info.Name == targetPlug || info.DeviceId == targetPlug) {
 			plugIsFound = true
-			isPlugOn, is_on_err := d.IsOn()
-			if is_on_err != nil {
-				panic(is_on_err)
-			}
+			isPlugOn, _ := d.IsOn()
 			// check the plugs current state
 			if (chargeLevel < chargeMinimum) && !isPlugOn {
 				if debuggingEnabled {
 					fmt.Printf("Action: Turn On\n")
 				}
-				d.TurnOn()
+				err = d.TurnOn()
+				if err != nil {
+					panic(err)
+				}
 			} else if (chargeLevel > chargeMaximum) && isPlugOn {
 				if debuggingEnabled {
 					fmt.Printf("Action: Turn Off\n")
 				}
-				d.TurnOff()
+				err = d.TurnOff()
+				if err != nil {
+					panic(err)
+				}
 			} else {
 				if debuggingEnabled {
 					fmt.Printf("Action: None\n")
