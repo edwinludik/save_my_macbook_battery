@@ -7,3 +7,4 @@ sudo cp .env_save_my_macbook_battery /usr/local/bin/
 sudo chmod 777 /usr/local/bin/save_my_macbook_battery
 sudo cp macOS/com.edwinludik.save_my_macbook_battery.plist  ~/Library/LaunchAgents/
 sudo launchctl load ~/Library/LaunchAgents/com.edwinludik.save_my_macbook_battery.plist
+echo Done
