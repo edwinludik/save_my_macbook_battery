@@ -73,14 +73,14 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	target_plug := os.Getenv("TARGET_PLUG_NAME_OR_ID")
+	targetPlug := os.Getenv("TARGET_PLUG_NAME_OR_ID")
 	// log.Printf("Found devices: %d", len(devices))
-	plug_is_found := false
+	plugIsFound := false
 	for _, d := range devices {
 		info, _ := d.GetInfo()
 		// log.Printf("Found device (name, id): %s, %s", info.Name, info.DeviceId)
-		if info.Name == target_plug || info.DeviceId == target_plug {
-			plug_is_found = true
+		if info.Name == targetPlug || info.DeviceId == targetPlug {
+			plugIsFound = true
 			isPlugOn, is_on_err := d.IsOn()
 			if is_on_err != nil {
 				panic(is_on_err)
@@ -105,10 +105,11 @@ func main() {
 		}
 	}
 	// we could not find the plug, show all the available ones
-	if !plug_is_found {
+	if !plugIsFound {
 		for _, d := range devices {
 			info, _ := d.GetInfo()
 			log.Printf("Found device (name, id): %s, %s", info.Name, info.DeviceId)
 		}
+		log.Fatal("Could not find plug: ", targetPlug)
 	}
 }
