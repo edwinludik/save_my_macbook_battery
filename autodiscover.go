@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strconv"
 	"time"
 
 	"github.com/distatus/battery"
@@ -14,6 +15,9 @@ import (
 )
 
 func main() {
+	// global variables
+	chargeLevel := 0.0
+
 	// load .env
 	err := godotenv.Load()
 	if err != nil {
@@ -26,15 +30,27 @@ func main() {
 		fmt.Println("Could not get battery info!")
 		return
 	}
-	for i, battery := range batteries {
-		fmt.Printf("Bat%d: ", i)
-		fmt.Printf("state: %s, ", battery.State.String())
-		fmt.Printf("current capacity: %f mWh, ", battery.Current)
-		fmt.Printf("last full capacity: %f mWh, ", battery.Full)
-		fmt.Printf("design capacity: %f mWh, ", battery.Design)
-		fmt.Printf("charge rate: %f mW, ", battery.ChargeRate)
-		fmt.Printf("voltage: %f V, ", battery.Voltage)
-		fmt.Printf("design voltage: %f V\n", battery.DesignVoltage)
+	for _, battery := range batteries {
+		// only get the value of the first battery
+		chargeLevel = battery.Current / battery.Full * 100
+		break
+	}
+
+	fmt.Printf("Current Battery Percentage %.2f%%: ", chargeLevel)
+
+	// load the charge values
+	chargeMinimum, err := strconv.ParseFloat(os.Getenv("CHARGE_MINIMUM"), 32)
+	if err != nil {
+		log.Fatal("CHARGE_MINIMUM is not a valid number float/integer")
+	}
+	chargeMaximum, err := strconv.ParseFloat(os.Getenv("CHARGE_MAXIMUM"), 32)
+	if err != nil {
+		log.Fatal("CHARGE_MINIMUM is not a valid number float/integer")
+	}
+	// exit early if the charge % warrants no action
+	if chargeLevel <= chargeMaximum && chargeLevel >= chargeMinimum {
+		log.Fatal("No action needed")
+		os.Exit(0)
 	}
 
 	// get the available plugs
@@ -42,14 +58,22 @@ func main() {
 	devices, err := hs100.Discover(networkMask,
 		configuration.Default().WithTimeout(time.Second),
 	)
-
 	if err != nil {
 		panic(err)
 	}
 
-	log.Printf("Found devices: %d", len(devices))
+	target_plug := os.Getenv("TARGET_PLUG_NAME_OR_ID")
+	// log.Printf("Found devices: %d", len(devices))
 	for _, d := range devices {
 		info, _ := d.GetInfo()
-		log.Printf("Found device (name, id): %s, %s", info.Name, info.DeviceId)
+		// log.Printf("Found device (name, id): %s, %s", info.Name, info.DeviceId)
+		if info.Name == target_plug || info.DeviceId == target_plug {
+			if chargeLevel > chargeMaximum {
+				d.TurnOff()
+			}
+			if chargeLevel < chargeMinimum {
+				d.TurnOn()
+			}
+		}
 	}
 }
