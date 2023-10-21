@@ -53,7 +53,7 @@ func main() {
 		os.Exit(0)
 	}
 
-	// get the available plugs
+	// get the available plugs and act as needed
 	networkMask := os.Getenv("NETWORK_MASK")
 	devices, err := hs100.Discover(networkMask,
 		configuration.Default().WithTimeout(time.Second),
