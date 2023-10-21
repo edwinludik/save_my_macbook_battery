@@ -49,7 +49,7 @@ func main() {
 	}
 	// exit early if the charge % warrants no action
 	if chargeLevel <= chargeMaximum && chargeLevel >= chargeMinimum {
-		log.Fatal("No action needed")
+		fmt.Printf("No action needed (Min/Max) = (%.2f%%/%.2f%%) ", chargeMinimum, chargeMaximum)
 		os.Exit(0)
 	}
 
@@ -64,16 +64,30 @@ func main() {
 
 	target_plug := os.Getenv("TARGET_PLUG_NAME_OR_ID")
 	// log.Printf("Found devices: %d", len(devices))
+	plug_is_found := false
 	for _, d := range devices {
 		info, _ := d.GetInfo()
 		// log.Printf("Found device (name, id): %s, %s", info.Name, info.DeviceId)
 		if info.Name == target_plug || info.DeviceId == target_plug {
-			if chargeLevel > chargeMaximum {
+			plug_is_found = true
+			is_on, is_on_err := d.IsOn()
+			if is_on_err != nil {
+				panic(err)
+			}
+			// check the plugs current state
+			if chargeLevel > chargeMaximum && is_on {
 				d.TurnOff()
 			}
-			if chargeLevel < chargeMinimum {
+			if chargeLevel < chargeMinimum && !is_on {
 				d.TurnOn()
 			}
+		}
+	}
+	// we could not find the plug, show all the available ones
+	if !plug_is_found {
+		for _, d := range devices {
+			info, _ := d.GetInfo()
+			log.Printf("Found device (name, id): %s, %s", info.Name, info.DeviceId)
 		}
 	}
 }
