@@ -24,6 +24,11 @@ func main() {
 		log.Fatal("Error loading .env file")
 	}
 
+	debuggingEnabled, err := strconv.ParseBool(os.Getenv("DEBUGGING_ENABLED"))
+	if err != nil {
+		log.Fatal("DEBUGGING_ENABLED is not a valid boolean: True/False")
+	}
+
 	// get battery info
 	batteries, err := battery.GetAll()
 	if err != nil {
@@ -35,8 +40,9 @@ func main() {
 		chargeLevel = battery.Current / battery.Full * 100
 		break
 	}
-
-	fmt.Printf("Current Battery Percentage %.2f%%: ", chargeLevel)
+	if debuggingEnabled {
+		fmt.Printf("Current Battery Percentage %.2f%%\n", chargeLevel)
+	}
 
 	// load the charge values
 	chargeMinimum, err := strconv.ParseFloat(os.Getenv("CHARGE_MINIMUM"), 32)
@@ -49,11 +55,17 @@ func main() {
 	}
 	// exit early if the charge % warrants no action
 	if chargeLevel <= chargeMaximum && chargeLevel >= chargeMinimum {
-		fmt.Printf("No action needed (Min/Max) = (%.2f%%/%.2f%%) ", chargeMinimum, chargeMaximum)
+		if debuggingEnabled {
+			fmt.Printf("No action needed (Min/Max) = (%.2f%%/%.2f%%)", chargeMinimum, chargeMaximum)
+		}
+		// clean exit
 		os.Exit(0)
 	}
 
-	// get the available plugs and act as needed
+	// get the available plugs and switch on/off
+	if debuggingEnabled {
+		fmt.Printf("Searching the Target plug...\n")
+	}
 	networkMask := os.Getenv("NETWORK_MASK")
 	devices, err := hs100.Discover(networkMask,
 		configuration.Default().WithTimeout(time.Second),
@@ -61,7 +73,6 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-
 	target_plug := os.Getenv("TARGET_PLUG_NAME_OR_ID")
 	// log.Printf("Found devices: %d", len(devices))
 	plug_is_found := false
@@ -70,16 +81,26 @@ func main() {
 		// log.Printf("Found device (name, id): %s, %s", info.Name, info.DeviceId)
 		if info.Name == target_plug || info.DeviceId == target_plug {
 			plug_is_found = true
-			is_on, is_on_err := d.IsOn()
+			isPlugOn, is_on_err := d.IsOn()
 			if is_on_err != nil {
-				panic(err)
+				panic(is_on_err)
 			}
 			// check the plugs current state
-			if chargeLevel > chargeMaximum && is_on {
-				d.TurnOff()
-			}
-			if chargeLevel < chargeMinimum && !is_on {
+			if (chargeLevel < chargeMinimum) && !isPlugOn {
+				if debuggingEnabled {
+					fmt.Printf("Action: Turn On\n")
+				}
 				d.TurnOn()
+			} else if (chargeLevel > chargeMaximum) && isPlugOn {
+				if debuggingEnabled {
+					fmt.Printf("Action: Turn Off\n")
+				}
+				d.TurnOff()
+			} else {
+				if debuggingEnabled {
+					fmt.Printf("Action: None\n")
+					fmt.Printf("Status (chargeLevel/Min/Max/isPlugOn) = (%.2f%% / %.2f%% / %.2f%% / %t)", chargeLevel, chargeMinimum, chargeMaximum, isPlugOn)
+				}
 			}
 		}
 	}
