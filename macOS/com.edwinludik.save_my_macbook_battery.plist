@@ -4,12 +4,18 @@
 <dict>
     <key>Label</key>
     <string>save_my_macbook_battery</string>
+
     <key>ProgramArguments</key>
     <array>
         <string>/usr/local/bin/save_my_macbook_battery</string>
     </array>
+
+    <key>WorkingDirectory</key>
+    <string>/usr/local/bin/</string>
+
     <key>StartInterval</key>
     <integer>60</integer>
+    
     <key>RunAtLoad</key>
     <true/>
 </dict>
