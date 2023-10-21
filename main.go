@@ -63,8 +63,9 @@ func main() {
 	}
 
 	// get the available plugs and switch on/off
+	targetPlug := os.Getenv("TARGET_PLUG_NAME_OR_ID")
 	if debuggingEnabled {
-		fmt.Printf("Searching the Target plug...\n")
+		fmt.Printf("Searching the Target plug (%s) ...\n", targetPlug)
 	}
 	networkMask := os.Getenv("NETWORK_MASK")
 	devices, err := hs100.Discover(networkMask,
@@ -73,7 +74,6 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	targetPlug := os.Getenv("TARGET_PLUG_NAME_OR_ID")
 	// log.Printf("Found devices: %d", len(devices))
 	plugIsFound := false
 	for _, d := range devices {
