@@ -9,6 +9,7 @@ This is a small app that monitors the battery level and switches the a plug on/o
 
 - admin rights on your macBook
 - TPLink Plug 100/110
+- go to be installed
 
 ## Install/update service
 
@@ -25,3 +26,4 @@ sh cleanup.sh
 - no GUI to monitor if it is working, but you will notice if when macOS tells you the battery is at 5% :-P
 - For personal use, no guarantees, warrantees, etc
 - Use at your own risk :)
+- Only supports macOS
