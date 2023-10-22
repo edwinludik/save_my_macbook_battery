@@ -12,6 +12,7 @@ sudo chmod 775 /usr/local/bin/.env_save_my_macbook_battery
 sudo chown $USER /usr/local/bin/.env_save_my_macbook_battery
 # create logging/output directors
 sudo mkdir -p /var/log/save_my_macbook_battery
+sudo chown $USER /var/log/save_my_macbook_battery
 # macos service
 sudo launchctl stop system/com.edwinludik.save_my_macbook_battery.plist
 sudo launchctl disable system/com.edwinludik.save_my_macbook_battery
