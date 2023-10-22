@@ -109,10 +109,11 @@ func main() {
 	}
 	// we could not find the plug, show all the available ones
 	if !plugIsFound {
-		log.Fatal("Could not find plug: ", targetPlug)
 		fmt.Printf("*** ERR *** Could not find plug: %s", targetPlug)
+		log.Fatal("Could not find plug: ", targetPlug)
 		for _, d := range devices {
 			info, _ := d.GetInfo()
+			fmt.Printf("But Found device (name, id): %s, %s", info.Name, info.DeviceId)
 			log.Printf("But Found device (name, id): %s, %s", info.Name, info.DeviceId)
 		}
 	}
