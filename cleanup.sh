@@ -6,6 +6,8 @@ sudo launchctl remove system/com.edwinludik.save_my_macbook_battery.plist
 sudo rm /Library/LaunchAgents/com.edwinludik.save_my_macbook_battery.plist
 sudo rm /usr/local/bin/save_my_macbook_battery
 sudo rm /usr/local/bin/.env_save_my_macbook_battery
+sudo rm /var/log/save_my_macbook_battery/*
+sudo rmdir /var/log/save_my_macbook_battery
 echo Done
 # launchctl list | grep save_my_macbook_battery
 # /Library/LaunchAgents
