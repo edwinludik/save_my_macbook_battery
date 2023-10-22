@@ -18,6 +18,9 @@ func main() {
 	// global variables
 	chargeLevel := 0.0
 
+	fmt.Print("*** ")
+	fmt.Printf("Checking at %s | ", time.Now().String())
+
 	// load .env
 	err := godotenv.Load(".env_save_my_macbook_battery")
 	if err != nil {
@@ -55,9 +58,7 @@ func main() {
 	}
 	// exit early if the charge % warrants no action
 	if chargeLevel <= chargeMaximum && chargeLevel >= chargeMinimum {
-		if debuggingEnabled {
-			fmt.Printf("No action needed (Min/Max) = (%.2f%%/%.2f%%)", chargeMinimum, chargeMaximum)
-		}
+		fmt.Printf("No action needed (Current/Min/Max) = (%.2f%%/%.2f%%/%.2f%%) \n", chargeLevel, chargeMinimum, chargeMaximum)
 		// clean exit
 		os.Exit(0)
 	}
@@ -85,35 +86,34 @@ func main() {
 			isPlugOn, _ := d.IsOn()
 			// check the plugs current state
 			if (chargeLevel < chargeMinimum) && !isPlugOn {
-				if debuggingEnabled {
-					fmt.Printf("Action: Turn On\n")
-				}
+				fmt.Printf("Action: Turn On\n")
 				err = d.TurnOn()
 				if err != nil {
 					panic(err)
 				}
 			} else if (chargeLevel > chargeMaximum) && isPlugOn {
-				if debuggingEnabled {
-					fmt.Printf("Action: Turn Off\n")
-				}
+				fmt.Printf("Action: Turn Off\n")
 				err = d.TurnOff()
 				if err != nil {
 					panic(err)
 				}
 			} else {
+				fmt.Printf("Action: None\n")
 				if debuggingEnabled {
-					fmt.Printf("Action: None\n")
 					fmt.Printf("Status (chargeLevel/Min/Max/isPlugOn) = (%.2f%% / %.2f%% / %.2f%% / %t)", chargeLevel, chargeMinimum, chargeMaximum, isPlugOn)
 				}
 			}
+		} else {
+			fmt.Printf(" info is null | (chargeLevel/Min/Max) = (%.2f%% / %.2f%% / %.2f%%) \n", chargeLevel, chargeMinimum, chargeMaximum)
 		}
 	}
 	// we could not find the plug, show all the available ones
 	if !plugIsFound {
+		log.Fatal("Could not find plug: ", targetPlug)
+		fmt.Printf("*** ERR *** Could not find plug: %s", targetPlug)
 		for _, d := range devices {
 			info, _ := d.GetInfo()
-			log.Printf("Found device (name, id): %s, %s", info.Name, info.DeviceId)
+			log.Printf("But Found device (name, id): %s, %s", info.Name, info.DeviceId)
 		}
-		log.Fatal("Could not find plug: ", targetPlug)
 	}
 }
