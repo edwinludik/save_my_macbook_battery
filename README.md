@@ -22,7 +22,7 @@ sh cleanup.sh
 ## Notes
 
 - Logs are not rotated, (can grow substantially over time)
-- No tests in the code (did not seem "warranted" at such a small scale)
+- No tests in the code :(
 - no GUI to monitor if it is working, but you will notice if when macOS tells you the battery is at 5% :-P
 - For personal use, no guarantees, warrantees, etc
 - Use at your own risk :)
